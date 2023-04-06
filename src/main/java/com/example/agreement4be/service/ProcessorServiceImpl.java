@@ -25,10 +25,10 @@ import static java.util.Objects.nonNull;
 public class ProcessorServiceImpl implements ProcessorService {
 
     @Override
-    public List<SnippetsDTO> processFile(MultipartFile file) throws IOException {
-        List<SnippetsDTO> snippets = new ArrayList<>();
+    public List<SnippetsDTO> processFile(final MultipartFile file) throws IOException {
+        final List<SnippetsDTO> snippets = new ArrayList<>();
         try (XWPFDocument document = new XWPFDocument(file.getInputStream())) {
-            AtomicLong index = new AtomicLong(0);
+            final AtomicLong index = new AtomicLong(0);
             document.getParagraphs()
                     .forEach(paragraph -> {
                         String text = paragraph.getText();
@@ -47,24 +47,25 @@ public class ProcessorServiceImpl implements ProcessorService {
                                                 }
                                             }))));
         }
+
         return snippets;
     }
 
     @Override
-    public ByteArrayInputStream updateFile(MultipartFile file, UpdatedSnippetsWrapperDTO snippetsDTO) throws IOException {
+    public ByteArrayInputStream updateFile(final MultipartFile file, final UpdatedSnippetsWrapperDTO snippetsDTO) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             FileOutputStream fileOutputStream = new FileOutputStream("document.docx");
-             XWPFDocument document = new XWPFDocument(file.getInputStream())) {
-            AtomicLong index = new AtomicLong(0);
+             final FileOutputStream fileOutputStream = new FileOutputStream("document.docx");
+             final XWPFDocument document = new XWPFDocument(file.getInputStream())) {
+            final AtomicLong index = new AtomicLong(0);
             document.getParagraphs()
                     .forEach(paragraph -> {
                         if (paragraph.getText().contains("[")) {
-                            Optional<UpdatedSnippetsDTO> snippetsForParagraph = snippetsDTO.getUpdatedSnippets().stream()
+                            final Optional<UpdatedSnippetsDTO> snippetsForParagraph = snippetsDTO.getUpdatedSnippets().stream()
                                     .filter(updatedSnippetsDTO -> updatedSnippetsDTO.getId() == index.get())
                                     .findFirst();
                             if (snippetsForParagraph.isPresent()) {
                                 index.getAndIncrement();
-                                List<PlaceholderLocationsDTO> modifiedPositions = snippetsForParagraph.get().getPositions().stream()
+                                final List<PlaceholderLocationsDTO> modifiedPositions = snippetsForParagraph.get().getPositions().stream()
                                         .filter(position -> nonNull(position.getNewPlaceholder()))
                                         .sorted(Comparator.comparing(PlaceholderLocationsDTO::getOldStartPosition).reversed())
                                         .toList();
@@ -76,24 +77,22 @@ public class ProcessorServiceImpl implements ProcessorService {
             document.getTables()
                     .forEach(xwpfTable -> xwpfTable.getRows()
                             .forEach(tableRow -> tableRow.getTableCells()
-                                    .forEach(rowCell -> {
-                                        rowCell.getParagraphs()
-                                                .forEach(paragraph -> {
-                                                    if (paragraph.getText().contains("[")) {
-                                                        Optional<UpdatedSnippetsDTO> snippetsForParagraph = snippetsDTO.getUpdatedSnippets().stream()
-                                                                .filter(updatedSnippetsDTO -> updatedSnippetsDTO.getId() == index.get())
-                                                                .findFirst();
-                                                        if (snippetsForParagraph.isPresent()) {
-                                                            index.incrementAndGet();
-                                                            List<PlaceholderLocationsDTO> modifiedPositions = snippetsForParagraph.get().getPositions().stream()
-                                                                    .filter(position -> nonNull(position.getNewPlaceholder()))
-                                                                    .sorted(Comparator.comparing(PlaceholderLocationsDTO::getOldStartPosition).reversed())
-                                                                    .toList();
-                                                            modifiedPositions.forEach(position -> DocumentProcessorUtil.replace2(paragraph, position.getOldPlaceholder(), position.getNewPlaceholder(), position.getOldStartPosition().intValue()));
-                                                        }
+                                    .forEach(rowCell -> rowCell.getParagraphs()
+                                            .forEach(paragraph -> {
+                                                if (paragraph.getText().contains("[")) {
+                                                    final Optional<UpdatedSnippetsDTO> snippetsForParagraph = snippetsDTO.getUpdatedSnippets().stream()
+                                                            .filter(updatedSnippetsDTO -> updatedSnippetsDTO.getId() == index.get())
+                                                            .findFirst();
+                                                    if (snippetsForParagraph.isPresent()) {
+                                                        index.incrementAndGet();
+                                                        final List<PlaceholderLocationsDTO> modifiedPositions = snippetsForParagraph.get().getPositions().stream()
+                                                                .filter(position -> nonNull(position.getNewPlaceholder()))
+                                                                .sorted(Comparator.comparing(PlaceholderLocationsDTO::getOldStartPosition).reversed())
+                                                                .toList();
+                                                        modifiedPositions.forEach(position -> DocumentProcessorUtil.replace2(paragraph, position.getOldPlaceholder(), position.getNewPlaceholder(), position.getOldStartPosition().intValue()));
                                                     }
-                                                });
-                                    })));
+                                                }
+                                            }))));
             document.write(fileOutputStream);
             document.write(outputStream);
             return new ByteArrayInputStream(outputStream.toByteArray());

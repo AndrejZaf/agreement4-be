@@ -8,5 +8,6 @@ import lombok.Data;
 public class SnippetsDTO {
 
     private Long id;
+
     private String snippet;
 }

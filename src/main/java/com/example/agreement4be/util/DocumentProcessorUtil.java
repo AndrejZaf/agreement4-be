@@ -13,7 +13,7 @@ import java.util.Map;
 public class DocumentProcessorUtil {
     private static Map<Integer, XWPFRun> getPosToRuns(XWPFParagraph paragraph) {
         int pos = 0;
-        Map<Integer, XWPFRun> map = new HashMap<Integer, XWPFRun>(10);
+        Map<Integer, XWPFRun> map = new HashMap<>(10);
         for (XWPFRun run : paragraph.getRuns()) {
             String runText = run.text();
             if (runText != null) {
