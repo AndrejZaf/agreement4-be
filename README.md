@@ -1,12 +1,12 @@
-<h1 style="font-weight: bold;text-align: center">Agreement4 Backend</h1>
+<h1 align="center" style="font-weight: bold;text-align: center">Agreement4 Backend</h1>
 
-<p style="text-align: center">
+<p align="center" style="text-align: center">
   <a href="#tech">Technologies</a> •
   <a href="#started">Getting Started</a> •
   <a href="#routes">API Endpoints</a>
 </p>
 
-<p style="text-align: center">
+<p align="center" style="text-align: center">
     <b>Exploring Apache POI for filling placeholders in large enterprise documents ex. [Insert final words]</b>
 </p>
 
